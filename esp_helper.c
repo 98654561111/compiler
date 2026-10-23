@@ -58,10 +58,8 @@
 #include <net/if.h>
 #include <time.h>
 
-#define AF_INET6 10
-#define IPPROTO_ESP 50
-#define IPPROTO_UDP 17
-#define IPPROTO_IPV6 41
+/* AF_INET6, IPPROTO_ESP, IPPROTO_UDP, IPPROTO_IPV6 are already defined
+ * by the system headers (netinet/in.h) on Linux.  Do not redefine them. */
 
 /* ---- MD5 (RFC 1321) ---- */
 
@@ -477,8 +475,10 @@ static int do_recv(const char *ue_str, const char *peer_str,
         fwrite(payload + 48, 1, sip_len, out);
         fclose(out);
 
+        char addr_str[64];
+        inet_ntop(AF_INET6, &src.sin6_addr, addr_str, sizeof(addr_str));
         fprintf(stderr, "received ESP spi=0x%08x seq=%u from %s, inner %zu bytes, wrote %zu bytes to %s\n",
-                pkt_spi, seq, inet_ntoa(src.sin6_addr), inner_len, sip_len, out_file);
+                pkt_spi, seq, addr_str, inner_len, sip_len, out_file);
         close(sock);
         printf("ok\n");
         return 0;
